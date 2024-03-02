@@ -1,48 +1,42 @@
-import os
 import json
+import os.path
+from typing import Any, Dict, List
 
-MY_FILE = 'input.json'  # Таргет
-
-
-# Существует ли MY_FILE в текущем каталоге
-def read_directory():
-    return os.path.exists(os.path.join(os.getcwd(), MY_FILE))
+MY_FILE = 'input.json'
 
 
-# Преобразование файла в структуру json
-def create_data():
-    with open(MY_FILE) as f:
-        json_data = json.load(f)
-    return json_data
+def transformData(DATA: Any) -> List[Any]:
+    transformed_data = []
+    for item in DATA:
+        if isinstance(item, list):
+            transformed_data.append(item[1::2])
+        elif isinstance(item, dict):
+            new_dict = {
+                key.upper() if isinstance(key, str) else key: value
+                for key, value in item.items()
+            }
+            transformed_data.append(new_dict)
+        elif isinstance(item, str):
+            transformed_data.append(item[:len(item) // 2])
+        else:
+            transformed_data.append(item)
+    return transformed_data
 
 
-# Модифицирование
-def get_right_json(data):
-    new_data = []
-    for element in data:
-        new_element = element
-
-        if isinstance(element, dict):
-            new_element = {key.upper(): value for key, value in element.items()}
-
-        elif isinstance(element, str):
-            new_element = element[:len(element) // 2]
-
-        elif isinstance(element, list):
-            new_element = element[1::2]
-
-        new_data.append(new_element)
-    return new_data
+def getReadableJsonFile(DATA: Any) -> str:
+    return json.dumps(DATA, indent=4)
 
 
-def main():
-    if read_directory():
-        right_data = get_right_json(create_data())
-        output = json.dumps(right_data, indent=4)  # Табуляця в 4 пробела
-        print(output)
-    else:
-        print(f'В текущей директории нет файла {MY_FILE}')
+def main() -> str:
+    if not os.path.exists(MY_FILE):
+        return f"Can't find {MY_FILE}"
+    try:
+        with open(MY_FILE, 'r') as file:
+            DATA = json.load(file)
+    except Exception as e:
+        return f"Error reading file: {e}"
+    return getReadableJsonFile(transformData(DATA))
 
 
 if __name__ == "__main__":
-    main()
+    print(main())
