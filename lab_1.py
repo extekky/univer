@@ -1,6 +1,6 @@
+import os
 import json
-import os.path
-from typing import Any, Dict, List
+from typing import Any, List
 
 MY_FILE = 'input.json'
 
