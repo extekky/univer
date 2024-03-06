@@ -2,10 +2,10 @@ import os
 import json
 import argparse  # The argparse module’s support for command-line
                  # interfaces is built around an instance of class named argparse.ArgumentParser.
+                 # doc: https://docs.python.org/3/library/argparse.html
 
-
-def getReadbleJsonTree(json_documet) -> str:
-    return json.dumps(json_documet, indent=4)
+def getReadbleJsonTree(json_document) -> str:
+    return json.dumps(json_document, indent=4)
 
 
 def parseInfo() -> argparse.Namespace:
@@ -16,7 +16,7 @@ def parseInfo() -> argparse.Namespace:
         prog='MyProgram',
         prefix_chars='-',
         epilog='На улице rain, на душе pain',
-        description = 'Parser for labratory three in POSU'
+        description = 'A parser for laboratory work on the discipline POSU'
     )
 
     # Let's declare the possible arguments
@@ -24,8 +24,17 @@ def parseInfo() -> argparse.Namespace:
     parse.add_argument('-u', '--uid', action='store_true')  # User's UID              (The argument with no values)
     parse.add_argument('-g', '--gid', action='store_true')  # GID of the user's group (The argument with no values)
 
-    # Dictionary with values of environment variables                                 (At least one argument)
-    parse.add_argument('-e', '--env', nargs='+', type=str)
+    # Values of environment variables                             (Only one argument, but can be called many times)
+    parse.add_argument('-e', '--env', nargs=1, action='extend')
+
+    # Scanning a directory                                                                      (Only one argument)
+    parse.add_argument('-d', '--dir', nargs=1)
+
+    # What positions should be display if there are any           (Only one argument, but can be called many times)
+    parse.add_argument('-i', '--itm', dest='pos', nargs=1, action='extend', type=int)
+
+    # Unlimited number of positional arguments
+    parse.add_argument('massive',  nargs='*', action='extend', type=int)
 
     return parse.parse_args()  # The parse_args() method runs the parser and
                                # places the extracted data in a argparse.Namespace object.
@@ -33,26 +42,38 @@ def parseInfo() -> argparse.Namespace:
 
 
 def main():
-    json_documet = {}  # Object for storing the structure of a json document
+    json_document = {}  # Object for storing the structure of a json document
 
     incoming_info = parseInfo()  # The incoming information will be processed by the parser and transmitted to incoming_info
 
     if incoming_info.pid is True:  # If the --pid argument was caught
-        json_documet['pid'] = os.getpid()  # add it to the json document
+        json_document['pid'] = os.getpid()  # add it to the json document
 
     if incoming_info.uid is True:
-        json_documet['uid'] = os.getuid()
+        json_document['uid'] = os.getuid()
 
     if incoming_info.gid is True:
-        json_documet['gid'] = os.getuid()
+        json_document['gid'] = os.getuid()
 
     if incoming_info.env is not None:
-        environment = {}
-        for env_var in incoming_info.env:
-            environment[env_var.upper()] = os.environ.get(env_var.upper(), 'Not found')
-        json_documet['env'] = environment
+        json_document['env'] = {
+            env_var.upper(): os.environ.get(env_var.upper(), 'Not found')
+            for env_var in incoming_info.env
+        }
 
-    return getReadbleJsonTree(json_documet)
+    if incoming_info.dir is not None:
+        try:
+            json_document['dir'] = os.listdir(incoming_info.dir[-1])
+        except FileNotFoundError:
+            json_document['dir'] = f"Directory '{incoming_info.dir[-1]}' not found"
+
+    if incoming_info.pos is not None and incoming_info.massive is not None:
+        json_document['pos'] = [
+            value for i, value in enumerate(incoming_info.massive)
+            if i in incoming_info.pos
+        ]
+
+    return getReadbleJsonTree(json_document)
 
 
 if __name__ == "__main__":
