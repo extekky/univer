@@ -122,7 +122,9 @@ $$K_{\text ст} = \frac{\Delta U_{\text вх}/\Delta U_{\text вх}}{\Delta U_{
 
 КПД:
 
-$${\eta} = \frac{P_{\text вых}}{P_{\text вх}} \times 100 \% = \frac{0.0285}{0.0949} \times 100 \% = 30 \%$$
+
+$${\eta} = \frac{P_{\text вых}}{P_{\text вх}} \times 100 \% = \frac{0.0285}{0.0949} \times 100 \% = 30\%$$
+
 
 #### Выводы:
 
