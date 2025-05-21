@@ -121,9 +121,7 @@ $$K_{\text ст} = \frac{\Delta U_{\text вх}/\Delta U_{\text вх}}{\Delta U_{
 
 КПД:
 
-$$
-\eta = \frac{0.0285}{0.0949} \times 100\% \approx 30\%
-$$
+$${\eta} = \frac{0.0285}{0.0949} \times 100 \% = 30 \% $$
 
 ### Выводы:
 
